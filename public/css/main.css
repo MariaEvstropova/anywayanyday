@@ -17,6 +17,7 @@ tbody tr:hover {
 }
 
 th {
-    background-color: #ad3455;
-    color: white;
+  font-weight: bold;
+  background-color: #ad3455;
+  color: white;
 }

@@ -1,9 +1,8 @@
-import {createJsonpRequest} from './utils/load';
-import {createInitialState} from './utils/createState';
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './components/App';
+import {createJsonpRequest} from './utils/load';
+import {createInitialState} from './utils/createState';
 
 var url1 = "http://api.anywayanyday.com/api/NewRequest3/?Route=2102MOWPARAD1CN0IN0SCE&Partner=awadweb&_Serialize=JSON";
 var url2, url3;
@@ -15,7 +14,7 @@ function *polling() {
   } while (!isComplete);
 }
 
-function runPolling(pollingIterator, promise) {
+function runPolling(pollingIterator) {
   if (!pollingIterator) {
     //Если генератора опросов нет, создать новый генератор
     pollingIterator = polling();
@@ -28,12 +27,14 @@ function runPolling(pollingIterator, promise) {
         console.log(data);
         if (!result.done) {
           if (data.Completed !== "100") {
+            document.getElementById('mount-point').innerHTML = "Загружено " + data.Completed + "%";
             runPolling(pollingIterator);
           } else {
             isComplete = true;
             createJsonpRequest(url3).then((resolve, reject) => {
-              //тут будет setStatus
-              console.log(createInitialState(resolve));
+              let state = createInitialState(resolve);
+              console.log(state);
+              ReactDOM.render(<App data={state}/>, document.getElementById('mount-point'));
             });
           }
         }
@@ -42,12 +43,10 @@ function runPolling(pollingIterator, promise) {
   }, 1000);
 }
 
-/*createJsonpRequest(url1).then((resolve, reject) => {
+createJsonpRequest(url1).then((resolve, reject) => {
   if (resolve.IdSynonym) {
     url2 = "http://api.anywayanyday.com/api/RequestState/?R=" + resolve.IdSynonym + "&_Serialize=JSON";
     url3 = "http://api.anywayanyday.com/api/Fares2/?R=" + resolve.IdSynonym + "&L=RU&C=RUB&Limit=200&DebugFullNames=true&_Serialize=JSON";
   }
   runPolling();
-});*/
-
-ReactDOM.render(<App/>, document.getElementById('mount-point'));
+});

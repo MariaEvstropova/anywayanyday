@@ -4,13 +4,20 @@ import Table from './Table';
 export default class App extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {};
+  }
+
+  componentWillMount() {
+    this.setState({
+      data: this.props.data
+    });
   }
 
   render() {
     return (
       <div>
-        <div>Hello I'm App</div>
-        <Table />
+        <Table data={this.state.data}/>
       </div>
     );
   }
