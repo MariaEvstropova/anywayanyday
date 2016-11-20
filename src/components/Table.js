@@ -1,3 +1,4 @@
+//Компонент таблицы, создает по входным данным (props) экземпляры "строк"
 import React, {Component} from 'react';
 import TableRow from './TableRow';
 import RowDetails from './RowDetails';
@@ -12,13 +13,17 @@ export default class Table extends Component {
     let data = this.props.data;
 
     let rows = [];
+    //Для всех входных данных создать строки
     data.forEach((info, index, array) => {
       if (info.Legs.length > 1) {
         //Если для данного перелета есть пересадки используем TableRow и RowDetails
+        //Создаем 1 экземпляр TableRow для данного перелета
         let points = info.Points;
         let mainInfo = <TableRow data = {info} key = {index}/>
         rows.push(mainInfo);
+
         info.Legs.forEach((leg, legIndex) => {
+          //Для всех промежуточных рейсов данного перелета создаем экземпляры RowDetails
           let pointsInfo = points.slice(legIndex, legIndex+2);
           let legInfo = <RowDetails data={leg} points={pointsInfo} key={Math.random()*(Date.now()-legIndex) + legIndex}/>
           rows.push(legInfo);

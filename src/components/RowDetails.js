@@ -1,3 +1,5 @@
+//Компонент используется для перелетов с пересадками
+//для каждого рейса создается экземпляр этого компонента с деталями данного перелета
 import React, {Component} from 'react';
 
 export default class RowDetails extends Component {

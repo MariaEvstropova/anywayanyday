@@ -1,3 +1,4 @@
+//Компонент служит для отображения объема загруженной информации
 import React, {Component} from 'react';
 
 export default class Load extends Component {
@@ -7,7 +8,7 @@ export default class Load extends Component {
 
   render() {
     return (
-      <div>
+      <div className="load">
         {"Загружено " + this.props.data.Completed + "%"}
       </div>
     );

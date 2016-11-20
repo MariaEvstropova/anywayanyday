@@ -37,7 +37,7 @@ export function createInitialState(response) {
           //В переменную info будем записывать полезные данные
           let info = {
             Airline: airline.Code, //Измененноеназвание авиакомпании
-            Fare: fare.TotalAmount + ' руб.', //Стоимость билета
+            Fare: fare.TotalAmount, //Стоимость билета
             Points: points //Измененные точки полета
           };
 
@@ -55,9 +55,11 @@ export function createInitialState(response) {
             let legInfo = {
               FlightNumber: leg.FlightNumber, //Номер рейса
               FlightDuration: converTime(leg.FlightDuration), //Продолжительность полета
-              DepartureDate: formatDepartureDate(convertDate(leg.DepartureDate)), //Время отправления
-              ArrivalDate: formatArrivalDate(convertDate(leg.DepartureDate), convertDate(leg.ArrivalDate)), //Время прибытия
-              Plane: leg.Plane //Измененное название самолета
+              DepartureDate: formatDate(convertDate(leg.DepartureDate)), //Время отправления
+              ArrivalDate: formatDate(convertDate(leg.ArrivalDate)), //Время прибытия
+              Plane: leg.Plane, //Измененное название самолета
+              RowDepartureDate: leg.DepartureDate, //Вспомогательные данные для сортировки
+              RowArrivalDate: leg.ArrivalDate //Вспомогательные данные для сортировки
             };
 
             legs.push(legInfo);
@@ -65,7 +67,13 @@ export function createInitialState(response) {
           info.Legs = legs; //Заносим массив данных о перелетах в массив результатов
 
           info.Duration = calculateDuration(variant.Legs); //Заносим информацию об общей продолжительности перелета
-          result.push(info);
+          info.RowDuration = calculateRowDuration(variant.Legs); //Вспомогательные данные для сортировки
+
+          //Случайно заметила, что сервер отдает данные для других дат :(
+          //Например для даты 28.02 17:45
+          //Для авиакомпании Alitalia
+          //Такие перелеты заносить в результирующий набор не будем
+          if (info.Legs[0].RowDepartureDate.slice(0,4) == '2102') result.push(info);
         });
       });
     });
@@ -74,6 +82,7 @@ export function createInitialState(response) {
   return result;
 }
 
+//Функция преобразует время, переданное сервером в удобный для восприятия формат
 function converTime(data) {
   let date;
   if (data[0] == '0') {
@@ -85,12 +94,14 @@ function converTime(data) {
   return date;
 }
 
+//Вспомогательная функция, преобразует дату в формате, отданном сервером в объект Date
 function convertDate(data) {
   let date = new Date(2016, data.slice(2, 4)-1, data.slice(0, 2), data.slice(4, 6), data.slice(6));
   return date;
 }
 
-function formatDepartureDate(data) {
+//Функция преобразует дату в удобный для восприятия формат
+function formatDate(data) {
   let hours = data.getHours();
   let minutes = data.getMinutes();
   if (minutes.toString().length == 1) minutes = '0' + minutes;
@@ -98,22 +109,18 @@ function formatDepartureDate(data) {
   return hours + ':' + minutes;
 }
 
-function formatArrivalDate(departureData, arrivalData) {
-  let hours = arrivalData.getHours();
-  let minutes = arrivalData.getMinutes();
-  if (minutes.toString().length == 1) minutes = '0' + minutes;
-
-  if (departureData.getDate() == arrivalData.getDate()) {
-    return hours + ':' + minutes;
-  } else {
-    return hours + ':' + minutes + ' (на следующий день)';
-  }
-}
-
-function calculateDuration(legs) {
+//Функция делает подсчет длительности полета в миллисекундах
+//Данные будут использоваться для сортировки
+function calculateRowDuration(legs) {
   let departure = convertDate(legs[0].DepartureDate);
   let arrival = convertDate(legs[legs.length - 1].ArrivalDate);
   let duration = arrival.getTime() - departure.getTime(); //В миллисекундах
+  return duration;
+}
+
+//Функция преобразует длительность перелета в удобный для восприятия формат
+function calculateDuration(legs) {
+  let duration = calculateRowDuration(legs); //В миллисекундах
   let sec = duration / 1000;
   let hours = Math.floor(sec / 3600  % 24);
   let minutes = sec / 60 % 60;

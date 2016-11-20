@@ -31,3 +31,30 @@ th {
   background-color: #ad3455;
   color: white;
 }
+
+.sort-bar {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.sort-bar select {
+  margin-left: 5px;
+  font-size: inherit;
+  padding: 2px;
+  border-radius: 5px;
+  background-color: #f5f5f5;
+}
+
+select:active, select:focus {
+  outline: none !important;
+}
+
+.load {
+  position: absolute;
+  height: 50px;
+  width: 150px;
+  margin: -25px 0 0 -75px;
+  top: 50%;
+  left: 50%;
+}
