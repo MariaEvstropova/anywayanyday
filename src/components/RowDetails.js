@@ -15,8 +15,8 @@ export default class RowDetails extends Component {
         <td>{this.props.data.ArrivalDate}</td>
         <td>{this.props.data.FlightDuration}</td>
         <td></td>
-        <td>Аэропорт вылета</td>
-        <td>Аэропорт прилета</td>
+        <td>{this.props.points[0]}</td>
+        <td>{this.props.points[1]}</td>
         <td>{this.props.data.Plane}</td>
       </tr>
     );

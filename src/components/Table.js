@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import TableRow from './TableRow';
 import RowDetails from './RowDetails';
+import FullInfoRow from './FullInfoRow';
 
 export default class Table extends Component {
   constructor(props) {
@@ -9,18 +10,24 @@ export default class Table extends Component {
 
   render() {
     let data = this.props.data;
-    /*let rows = data.map((item, index, array) => {
-      return <TableRow data = {item} key = {index}/>
-    });*/
 
     let rows = [];
     data.forEach((info, index, array) => {
-      let mainInfo = <TableRow data = {info} key = {index}/>
-      rows.push(mainInfo);
-      info.Legs.forEach((leg, legIndex) => {
-        let legInfo = <RowDetails data={leg} key={Math.random()*(Date.now()-legIndex) + legIndex}/>
-        rows.push(legInfo);
-      });
+      if (info.Legs.length > 1) {
+        //Если для данного перелета есть пересадки используем TableRow и RowDetails
+        let points = info.Points;
+        let mainInfo = <TableRow data = {info} key = {index}/>
+        rows.push(mainInfo);
+        info.Legs.forEach((leg, legIndex) => {
+          let pointsInfo = points.slice(legIndex, legIndex+2);
+          let legInfo = <RowDetails data={leg} points={pointsInfo} key={Math.random()*(Date.now()-legIndex) + legIndex}/>
+          rows.push(legInfo);
+        });
+      } else {
+        //Если для данного перелета пересадок нет используем FullInfoRow
+        let mainInfo = <FullInfoRow data = {info} key = {index}/>
+        rows.push(mainInfo);
+      }
     });
 
     return (

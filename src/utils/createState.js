@@ -55,14 +55,16 @@ export function createInitialState(response) {
             let legInfo = {
               FlightNumber: leg.FlightNumber, //Номер рейса
               FlightDuration: converTime(leg.FlightDuration), //Продолжительность полета
-              DepartureDate: convertDate(leg.DepartureDate), //Время отправления
-              ArrivalDate: convertDate(leg.ArrivalDate), //Время прибытия
+              DepartureDate: formatDepartureDate(convertDate(leg.DepartureDate)), //Время отправления
+              ArrivalDate: formatArrivalDate(convertDate(leg.DepartureDate), convertDate(leg.ArrivalDate)), //Время прибытия
               Plane: leg.Plane //Измененное название самолета
             };
 
             legs.push(legInfo);
           });
           info.Legs = legs; //Заносим массив данных о перелетах в массив результатов
+
+          info.Duration = calculateDuration(variant.Legs); //Заносим информацию об общей продолжительности перелета
           result.push(info);
         });
       });
@@ -77,7 +79,7 @@ function converTime(data) {
   if (data[0] == '0') {
       if (data[1] == '0') date = data.slice(2, 4) + ' мин';
       else date = data.slice(1, 2) + ' ч ' + data.slice(2, 4) + ' мин';
-  } else {s
+  } else {
     date = data.slice(0, 2) + ' ч ' + data.slice(2, 4) + ' мин';
   }
   return date;
@@ -85,5 +87,37 @@ function converTime(data) {
 
 function convertDate(data) {
   let date = new Date(2016, data.slice(2, 4)-1, data.slice(0, 2), data.slice(4, 6), data.slice(6));
-  return date.toLocaleString();
+  return date;
+}
+
+function formatDepartureDate(data) {
+  let hours = data.getHours();
+  let minutes = data.getMinutes();
+  if (minutes.toString().length == 1) minutes = '0' + minutes;
+
+  return hours + ':' + minutes;
+}
+
+function formatArrivalDate(departureData, arrivalData) {
+  let hours = arrivalData.getHours();
+  let minutes = arrivalData.getMinutes();
+  if (minutes.toString().length == 1) minutes = '0' + minutes;
+
+  if (departureData.getDate() == arrivalData.getDate()) {
+    return hours + ':' + minutes;
+  } else {
+    return hours + ':' + minutes + ' (на следующий день)';
+  }
+}
+
+function calculateDuration(legs) {
+  let departure = convertDate(legs[0].DepartureDate);
+  let arrival = convertDate(legs[legs.length - 1].ArrivalDate);
+  let duration = arrival.getTime() - departure.getTime(); //В миллисекундах
+  let sec = duration / 1000;
+  let hours = Math.floor(sec / 3600  % 24);
+  let minutes = sec / 60 % 60;
+  if (minutes === 0) minutes = "00";
+
+  return hours + " ч " + minutes + " мин";
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './components/App';
+import Load from './components/Load';
 import {createJsonpRequest} from './utils/load';
 import {createInitialState} from './utils/createState';
 
@@ -27,7 +28,7 @@ function runPolling(pollingIterator) {
         console.log(data);
         if (!result.done) {
           if (data.Completed !== "100") {
-            document.getElementById('mount-point').innerHTML = "Загружено " + data.Completed + "%";
+            ReactDOM.render(<Load data={data}/>, document.getElementById('mount-point'));
             runPolling(pollingIterator);
           } else {
             isComplete = true;
